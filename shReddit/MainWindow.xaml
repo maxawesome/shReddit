@@ -1,8 +1,11 @@
 ﻿<Window x:Class="shReddit.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="MainWindow" Height="350" Width="525">
+        Title="shReddit" Height="480" Width="640"
+        Icon="snoo.ico">
     <Grid>
-        
+        <TextBox Name="txtUserName"></TextBox>
+        <TextBox Name="txtPassword"></TextBox>
+        <Image Source="Images/shreddit_off.png" Height="86" Width="90" Margin="0,0,533.6,350.4"></Image>        
     </Grid>
 </Window>
