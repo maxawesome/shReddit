@@ -1,1 +1,2 @@
 # shReddit
+This is yet another tool for deleting your reddit post and comment history. Unlike other utilities for this, it offers the user the ability to specify the number of passes for writing garbage edits to your posts and comments prior to deletion. This is an effort to help further obfuscate your posts in the case that reddit actually retains more than just your previous or current post contents on deletion.
