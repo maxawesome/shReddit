@@ -24,5 +24,19 @@ namespace shReddit
         {
             InitializeComponent();
         }
+
+        private void ShredButton_Click(object sender, RoutedEventArgs e)
+        {
+            var result = MessageBox.Show("Are you certain you want to shred your reddit history?","Shred for real?", MessageBoxButton.YesNo,MessageBoxImage.Question);
+
+            if (result != MessageBoxResult.Yes) return;
+            
+            var sure = MessageBox.Show("Shredding is irreversible. Are you really, really sure?", "No, seriously...", MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+            if (sure == MessageBoxResult.Yes)
+            {
+                //TODO: Implement
+            }
+        }
     }
 }
