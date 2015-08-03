@@ -12,6 +12,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using RedditSharp;
+using RedditSharp.Things;
 
 namespace shReddit
 {
@@ -20,6 +22,9 @@ namespace shReddit
     /// </summary>
     public partial class MainWindow : Window
     {
+        private Reddit _reddit;
+        private AuthenticatedUser _redditUser;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -27,16 +32,54 @@ namespace shReddit
 
         private void ShredButton_Click(object sender, RoutedEventArgs e)
         {
-            var result = MessageBox.Show("Are you certain you want to shred your reddit history?","Shred for real?", MessageBoxButton.YesNo,MessageBoxImage.Question);
-
-            if (result != MessageBoxResult.Yes) return;
-            
-            var sure = MessageBox.Show("Shredding is irreversible. Are you really, really sure?", "No, seriously...", MessageBoxButton.YesNo, MessageBoxImage.Question);
-
-            if (sure == MessageBoxResult.Yes)
+            if (_redditUser == null)
             {
-                //TODO: Implement
+                MessageBox.Show("You're not logged in. Try again.", "Not logged in!", MessageBoxButton.OK, MessageBoxImage.Error);
+                ShredButton.IsEnabled = false;
+                return;
             }
+
+            var sure = MessageBox.Show("Are you certain you want to shred your reddit history?", "Shred for real?", MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+            if (sure != MessageBoxResult.Yes) return;
+
+            sure = MessageBox.Show("Shredding is irreversible. Are you really, really sure?", "No, seriously...", MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+            if (sure != MessageBoxResult.Yes) return;
+
+            ToggleShredImage(true);
+
+            var writeGarbage = WriteGarbage.SelectedValue.ToString() == "Yes";
+            int numberOfPasses;
+            Int32.TryParse(PassNumber.SelectedValue.ToString(), out numberOfPasses);
+            var deletePosts = DeletePosts.SelectedValue.ToString() == "Yes";
+            var deleteComments = DeleteComments.SelectedValue.ToString() == "Yes";
+
+            OutputTextBlock.Text = ShredEngine.Shred(_redditUser, writeGarbage, numberOfPasses, deletePosts, deleteComments) ? "Shredding completed successfully!" : "Shredding failed.";
+
+            ToggleShredImage(false);
+
+        }
+
+        private void ToggleShredImage(bool shredding)
+        {
+            LogoImage.Source = shredding ? new BitmapImage(new Uri("Images/shreddit_on.png", UriKind.Relative)) : new BitmapImage(new Uri("Images/shreddit_off.png", UriKind.Relative));
+        }
+
+        private void LoginButton_Click(object sender, RoutedEventArgs e)
+        {
+            _reddit = new Reddit(WebAgent.RateLimitMode.Burst);
+            if (String.IsNullOrEmpty(UserNameText.Text) || String.IsNullOrEmpty(PasswordText.Password)) return;
+
+            _redditUser = _reddit.LogIn(UserNameText.Text, PasswordText.Password);
+            var postCount = _redditUser.Posts.Count();
+            var commentCount = _redditUser.Comments.Count();
+
+
+            if (_redditUser == null) return;
+            OutputTextBlock.Text =
+                String.Format("Logged in as {0}. You have {1} posts and {2} comments waiting to be shredded.", _redditUser.Name, postCount, commentCount);
+            ShredButton.IsEnabled = true;
         }
     }
 }
