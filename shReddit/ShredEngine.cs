@@ -11,7 +11,7 @@ namespace shReddit
 {
     public class ShredEngine
     {
-        public string GenerateRandomString(int length)
+        private string GenerateRandomString(int length)
         {
             var randBuffer = new byte[length];
             RandomNumberGenerator.Create().GetBytes(randBuffer);
@@ -21,9 +21,8 @@ namespace shReddit
 
         public static bool Shred(AuthenticatedUser redditUser, bool writeGarbage, int numberOfPasses, bool deletePosts, bool deleteComments)
         {
-         
-            
             return false;
         }
+        
     }
 }

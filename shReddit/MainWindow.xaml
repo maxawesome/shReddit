@@ -21,7 +21,7 @@
                         <Label Name="DeleteCommentsLabel" VerticalAlignment="Center" HorizontalAlignment="Right">Delete Comments?</Label>
                     </StackPanel>
                     <StackPanel DockPanel.Dock="Left">
-                        <TextBox Name="UserNameText" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5,5,5,5" MinWidth="200" MaxWidth="350"></TextBox>
+                        <TextBox Name="UserNameText" IsTabStop="True" TabIndex="0" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5,5,5,5" MinWidth="200" MaxWidth="350"></TextBox>
                         <PasswordBox Name="PasswordText" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5,5,5,5" MinWidth="200" MaxWidth="350"></PasswordBox>
                         <ComboBox Name="WriteGarbage" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5,2,2,2" MinWidth="50" MaxWidth="100">
                             <ComboBoxItem IsSelected="True">Yes</ComboBoxItem>

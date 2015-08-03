@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -27,7 +28,7 @@ namespace shReddit
 
         public MainWindow()
         {
-            InitializeComponent();
+            InitializeComponent();            
         }
 
         private void ShredButton_Click(object sender, RoutedEventArgs e)
@@ -67,20 +68,30 @@ namespace shReddit
         }
 
         private void LoginButton_Click(object sender, RoutedEventArgs e)
+        {        
+            ProcessLogin(UserNameText.Text, PasswordText.Password);
+        }
+
+        private void ProcessLogin(string userName, string password)
         {
             _reddit = new Reddit(WebAgent.RateLimitMode.Burst);
-            if (String.IsNullOrEmpty(UserNameText.Text) || String.IsNullOrEmpty(PasswordText.Password)) return;
+            if (String.IsNullOrEmpty(userName) || String.IsNullOrEmpty(password)) return;
 
-            _redditUser = _reddit.LogIn(UserNameText.Text, PasswordText.Password);
-
-            var postCount = _redditUser.Posts.Count();
-            var commentCount = _redditUser.Comments.Count();
-
+            _redditUser = _reddit.LogIn(userName, password);
 
             if (_redditUser == null) return;
+
+            var posts = _redditUser.Posts;
+            var comments = _redditUser.Comments;
+
+            var postCount = posts.Count();
+            var commentCount = comments.Count();
+
             OutputTextBlock.Text =
                 String.Format("Logged in as {0}. You have {1} posts and {2} comments waiting to be shredded.", _redditUser.Name, postCount, commentCount);
             ShredButton.IsEnabled = true;
         }
     }
+
+
 }
