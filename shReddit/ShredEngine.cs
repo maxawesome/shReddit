@@ -11,7 +11,7 @@ namespace shReddit
 {
     public class ShredEngine
     {
-        private string GenerateRandomString(int length)
+        private static string GenerateRandomString(int length)
         {
             var randBuffer = new byte[length];
             RandomNumberGenerator.Create().GetBytes(randBuffer);
@@ -21,8 +21,48 @@ namespace shReddit
 
         public static bool Shred(AuthenticatedUser redditUser, bool writeGarbage, int numberOfPasses, bool deletePosts, bool deleteComments)
         {
-            return false;
+            try
+            {
+
+                foreach (var post in redditUser.Posts)
+                {
+                    if (writeGarbage)
+                    {
+                        for (var i = 0; i >= numberOfPasses; i++)
+                        {
+                            post.EditText(GenerateRandomString(i ^ i));
+                        }
+                    }
+
+                    if (deletePosts)
+                    {
+                        post.Remove();
+                    }
+                }
+
+                foreach (var comment in redditUser.Comments)
+                {
+                    if (writeGarbage)
+                    {
+                        for (var i = 0; i >= numberOfPasses; i++)
+                        {
+                            comment.EditText(GenerateRandomString(i ^ i));
+                        }
+                    }
+
+                    if (deleteComments)
+                    {
+                        comment.Remove();
+                    }
+
+                }
+
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
-        
     }
 }
