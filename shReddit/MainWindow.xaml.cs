@@ -72,6 +72,7 @@ namespace shReddit
             if (String.IsNullOrEmpty(UserNameText.Text) || String.IsNullOrEmpty(PasswordText.Password)) return;
 
             _redditUser = _reddit.LogIn(UserNameText.Text, PasswordText.Password);
+
             var postCount = _redditUser.Posts.Count();
             var commentCount = _redditUser.Comments.Count();
 
