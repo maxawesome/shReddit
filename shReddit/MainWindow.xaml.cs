@@ -41,11 +41,11 @@ namespace shReddit
 
             var writeGarbage = WriteGarbage.Text == "Yes";
             int numberOfPasses;
-            Int32.TryParse(PassNumber.Text, out numberOfPasses);
-            var deletePosts = DeletePosts.Text == "Yes";
-            var deleteComments = DeleteComments.Text == "Yes";
+            int.TryParse(PassNumber.Text, out numberOfPasses);
+            var deletePostsQty = int.Parse(DeletePostsQuantity.Text);
+            var deleteCommentsQty = int.Parse(DeleteCommentsQuantity.Text);
 
-            OutputTextBlock.Text = ShredEngine.Shred(_redditUser, writeGarbage, numberOfPasses, deletePosts, deleteComments) ? "Shredding completed successfully!" : "Shredding failed.";
+            OutputTextBlock.Text = ShredEngine.Shred(_redditUser, writeGarbage, numberOfPasses, deletePostsQty, deleteCommentsQty) ? "Shredding completed successfully!" : "Shredding failed.";
 
             ToggleShredImage(false);
 
@@ -63,20 +63,20 @@ namespace shReddit
 
         private void ProcessLogin(string userName, string password)
         {
-            _reddit = new Reddit(WebAgent.RateLimitMode.Pace, true);
+            _reddit = new Reddit(WebAgent.RateLimitMode.Pace);
 
-            if (String.IsNullOrEmpty(userName) || String.IsNullOrEmpty(password)) return;
+            if (string.IsNullOrEmpty(userName) || string.IsNullOrEmpty(password)) return;
 
-            _redditUser = _reddit.LogIn(userName, password, true);
+            _redditUser = _reddit.LogIn(userName, password);
 
             if (_redditUser == null) return;
             LoginButton.IsEnabled = false;
 
-            var posts = _redditUser.Posts.ToList<Post>();
-            var comments = _redditUser.Comments.ToList<Comment>();
+            var posts = _redditUser.Posts.Take(100).ToList();
+            var comments = _redditUser.Comments.Take(100).ToList();
 
             OutputTextBlock.Text =
-                string.Format("Logged in as {0}. You have {1} posts and {2} comments waiting to be shredded.", _redditUser.Name, posts.Count, comments.Count);
+                $"Logged in as {_redditUser.Name}. You have >= {posts.Count} posts and >= {comments.Count} comments waiting to be shredded.";
             ShredButton.IsEnabled = true;            
         }
     }

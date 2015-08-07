@@ -1,60 +1,65 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using RedditSharp.Things;
 
 namespace shReddit
 {
-    public class ShredEngine
+    public static class ShredEngine
     {
         private static string GenerateRandomString()
         {
-            var length = 32;
+            const int length = 32;
             var randomText = Guid.NewGuid().ToString("N").Substring(0, length);
             return randomText;
         }
 
 
-        public static bool Shred(AuthenticatedUser redditUser, bool writeGarbage, int numberOfPasses, bool deletePosts, bool deleteComments)
+        public static bool Shred(AuthenticatedUser redditUser, bool writeGarbage, int numberOfPasses, int deletePostsQty, int deleteCommentsQty)
         {
             var encounteredErrors = false;
 
-            foreach (var post in redditUser.Posts)
+            var postsToShred = redditUser.Posts.Take(deletePostsQty).ToList();
+            var commentsToShred = redditUser.Comments.Take(deleteCommentsQty).ToList();
+
+            var shreddedPosts = new List<Post>();
+            var shreddedComments = new List<Comment>();
+
+            foreach (var post in postsToShred)
             {
                 if (writeGarbage)
                 {
                     for (var i = 0; i < numberOfPasses; i++)
                     {
-                        if (post.IsSelfPost)
+                        if (!post.IsSelfPost) continue;
+                        try
                         {
-                            try
-                            {
-                                post.EditText(GenerateRandomString());
-                            }
-                            catch (Exception ex)
-                            {
-                                var msg = ex.Message;
-                                encounteredErrors = true;
-                            }
+                            post.EditText(GenerateRandomString());
+                        }
+                        catch (Exception ex)
+                        {
+                            var msg = ex.Message;
+                            encounteredErrors = true;
                         }
                     }
                 }
 
-                if (deletePosts)
+                if (deletePostsQty == 0) continue;
+                try
                 {
-                    try
-                    {
-                        post.Del();
-                    }
-                    catch (Exception ex)
-                    {
-                        var msg = ex.Message;
-                        encounteredErrors = true;
-                    }
+                    post.Del();
+                    shreddedPosts.Add(post);
+                }
+                catch (Exception ex)
+                {
+                    var msg = ex.Message;
+                    encounteredErrors = true;
                 }
             }
 
 
 
-            foreach (var comment in redditUser.Comments)
+            foreach (var comment in commentsToShred)
             {
                 if (writeGarbage)
                 {
@@ -72,21 +77,21 @@ namespace shReddit
                     }
                 }
 
-                if (deleteComments)
+                if (deleteCommentsQty == 0) continue;
+                try
                 {
-                    try
-                    {
-                        //comment.Del(); //This won't work until RedditSharp implements the Del method, which it doesn't yet.
-                    }
-                    catch (Exception ex)
-                    {
-                        var msg = ex.Message;
-                        encounteredErrors = true;
-                    }
+                    comment.Del(); //This won't work until RedditSharp implements the Del method, which it doesn't yet.
+                    shreddedComments.Add(comment);
                 }
-
+                catch (Exception ex)
+                {
+                    var msg = ex.Message;
+                    encounteredErrors = true;
+                }
             }
 
+            var postShredCount = shreddedPosts.Count;
+            var commentShredCount = shreddedComments.Count;
 
             return encounteredErrors;
         }

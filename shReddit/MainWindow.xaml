@@ -17,29 +17,37 @@
                         <Label Name="PasswordLabel" VerticalAlignment="Center" HorizontalAlignment="Right">Password:</Label>
                         <Label Name="WriteGarbageLabel" VerticalAlignment="Center" HorizontalAlignment="Right">Write Garbage?</Label>
                         <Label Name="PassNumberLabel" VerticalAlignment="Center" HorizontalAlignment="Right">Number of Passes:</Label>
-                        <Label Name="DeletePostsLabel" VerticalAlignment="Center" HorizontalAlignment="Right">Delete Posts?</Label>
-                        <Label Name="DeleteCommentsLabel" VerticalAlignment="Center" HorizontalAlignment="Right">Delete Comments?</Label>
+                        <Label Name="DeletePostsLabel" VerticalAlignment="Center" HorizontalAlignment="Right"># of Posts to Shred:</Label>
+                        <Label Name="DeleteCommentsLabel" VerticalAlignment="Center" HorizontalAlignment="Right"># of Comments to Shred:</Label>
                     </StackPanel>
                     <StackPanel DockPanel.Dock="Left">
                         <TextBox Name="UserNameText" IsTabStop="True" TabIndex="0" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5,5,5,5" MinWidth="200" MaxWidth="350"></TextBox>
                         <PasswordBox Name="PasswordText" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5,5,5,5" MinWidth="200" MaxWidth="350"></PasswordBox>
-                        <ComboBox Name="WriteGarbage" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5,2,2,2" MinWidth="50" MaxWidth="100">
+                        <ComboBox Name="WriteGarbage" ToolTip="Writes a random string of text to each post/comment prior to deletion." VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5,1,1,1" MinWidth="50" MaxWidth="100">
                             <ComboBoxItem IsSelected="True">No</ComboBoxItem>
                             <ComboBoxItem>Yes</ComboBoxItem>
                         </ComboBox>
-                        <ComboBox Name="PassNumber" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5,2,2,2" MinWidth="50" MaxWidth="100">
+                        <ComboBox Name="PassNumber" ToolTip="Determines the number of times to write random text to each post/comment prior to deletion." VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5,1,1,1" MinWidth="50" MaxWidth="100">
                             <ComboBoxItem IsSelected="True">1</ComboBoxItem>
                             <ComboBoxItem>3</ComboBoxItem>
                             <ComboBoxItem>5</ComboBoxItem>
                             <ComboBoxItem>10</ComboBoxItem>
                         </ComboBox>
-                        <ComboBox Name="DeletePosts" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5,2,2,2" MinWidth="50" MaxWidth="100">
-                            <ComboBoxItem IsSelected="True">No</ComboBoxItem>
-                            <ComboBoxItem>Yes</ComboBoxItem>
+                        <ComboBox Name="DeletePostsQuantity" ToolTip="Specifies the number of posts to shred. Max is 1000 due to Reddit API limits." VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5,1,1,1" MinWidth="50" MaxWidth="100">
+                            <ComboBoxItem IsSelected="True">0</ComboBoxItem>
+                            <ComboBoxItem>10</ComboBoxItem>
+                            <ComboBoxItem>50</ComboBoxItem>
+                            <ComboBoxItem>100</ComboBoxItem>
+                            <ComboBoxItem>500</ComboBoxItem>
+                            <ComboBoxItem>1000</ComboBoxItem>
                         </ComboBox>
-                        <ComboBox Name="DeleteComments" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5,1,1,1" MinWidth="50" MaxWidth="100">
-                            <ComboBoxItem IsSelected="True">No</ComboBoxItem>
-                            <ComboBoxItem>Yes</ComboBoxItem>
+                        <ComboBox Name="DeleteCommentsQuantity" ToolTip="Specifies the number of comments to shred. Max is 1000 due to Reddit API limits." VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5,1,1,1" MinWidth="50" MaxWidth="100">
+                            <ComboBoxItem IsSelected="True">0</ComboBoxItem>
+                            <ComboBoxItem>10</ComboBoxItem>
+                            <ComboBoxItem>50</ComboBoxItem>
+                            <ComboBoxItem>100</ComboBoxItem>
+                            <ComboBoxItem>500</ComboBoxItem>
+                            <ComboBoxItem>1000</ComboBoxItem>
                         </ComboBox>
                         <DockPanel>
                             <Button Name="ShredButton" DockPanel.Dock="Right" VerticalAlignment="Center" HorizontalAlignment="Right" Padding="5,2,5,2" Margin="2,2,2,2" Click="ShredButton_Click" IsEnabled="False">Shred</Button>
