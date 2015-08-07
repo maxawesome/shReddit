@@ -1,68 +1,94 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
 using RedditSharp.Things;
-
 
 namespace shReddit
 {
     public class ShredEngine
     {
-        private static string GenerateRandomString(int length)
+        private static string GenerateRandomString()
         {
-            var randBuffer = new byte[length];
-            RandomNumberGenerator.Create().GetBytes(randBuffer);
-            return Convert.ToBase64String(randBuffer).Remove(length);
+            var length = 32;
+            var randomText = Guid.NewGuid().ToString("N").Substring(0, length);
+            return randomText;
         }
 
 
         public static bool Shred(AuthenticatedUser redditUser, bool writeGarbage, int numberOfPasses, bool deletePosts, bool deleteComments)
         {
-            try
+            var encounteredErrors = false;
+
+            foreach (var post in redditUser.Posts)
             {
-
-                foreach (var post in redditUser.Posts)
+                if (writeGarbage)
                 {
-                    if (writeGarbage)
+                    for (var i = 0; i < numberOfPasses; i++)
                     {
-                        for (var i = 0; i >= numberOfPasses; i++)
+                        if (post.IsSelfPost)
                         {
-                            post.EditText(GenerateRandomString(i ^ i));
+                            try
+                            {
+                                post.EditText(GenerateRandomString());
+                            }
+                            catch (Exception ex)
+                            {
+                                var msg = ex.Message;
+                                encounteredErrors = true;
+                            }
                         }
-                    }
-
-                    if (deletePosts)
-                    {
-                        post.Remove();
                     }
                 }
 
-                foreach (var comment in redditUser.Comments)
+                if (deletePosts)
                 {
-                    if (writeGarbage)
+                    try
                     {
-                        for (var i = 0; i >= numberOfPasses; i++)
+                        post.Del();
+                    }
+                    catch (Exception ex)
+                    {
+                        var msg = ex.Message;
+                        encounteredErrors = true;
+                    }
+                }
+            }
+
+
+
+            foreach (var comment in redditUser.Comments)
+            {
+                if (writeGarbage)
+                {
+                    for (var i = 0; i < numberOfPasses; i++)
+                    {
+                        try
                         {
-                            comment.EditText(GenerateRandomString(i ^ i));
+                            comment.EditText(GenerateRandomString());
+                        }
+                        catch (Exception ex)
+                        {
+                            var msg = ex.Message;
+                            encounteredErrors = true;
                         }
                     }
-
-                    if (deleteComments)
-                    {
-                        comment.Remove();
-                    }
-
                 }
 
-                return true;
+                if (deleteComments)
+                {
+                    try
+                    {
+                        //comment.Del(); //This won't work until RedditSharp implements the Del method, which it doesn't yet.
+                    }
+                    catch (Exception ex)
+                    {
+                        var msg = ex.Message;
+                        encounteredErrors = true;
+                    }
+                }
+
             }
-            catch (Exception)
-            {
-                return false;
-            }
+
+
+            return encounteredErrors;
         }
     }
 }

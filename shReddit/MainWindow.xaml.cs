@@ -1,19 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using RedditSharp;
 using RedditSharp.Things;
 
@@ -29,7 +17,7 @@ namespace shReddit
 
         public MainWindow()
         {
-            InitializeComponent();            
+            InitializeComponent();
         }
 
         private void ShredButton_Click(object sender, RoutedEventArgs e)
@@ -51,11 +39,11 @@ namespace shReddit
 
             ToggleShredImage(true);
 
-            var writeGarbage = WriteGarbage.SelectedValue.ToString() == "Yes";
+            var writeGarbage = WriteGarbage.Text == "Yes";
             int numberOfPasses;
-            Int32.TryParse(PassNumber.SelectedValue.ToString(), out numberOfPasses);
-            var deletePosts = DeletePosts.SelectedValue.ToString() == "Yes";
-            var deleteComments = DeleteComments.SelectedValue.ToString() == "Yes";
+            Int32.TryParse(PassNumber.Text, out numberOfPasses);
+            var deletePosts = DeletePosts.Text == "Yes";
+            var deleteComments = DeleteComments.Text == "Yes";
 
             OutputTextBlock.Text = ShredEngine.Shred(_redditUser, writeGarbage, numberOfPasses, deletePosts, deleteComments) ? "Shredding completed successfully!" : "Shredding failed.";
 
@@ -75,22 +63,21 @@ namespace shReddit
 
         private void ProcessLogin(string userName, string password)
         {
-            _reddit = new Reddit(WebAgent.RateLimitMode.Burst);
+            _reddit = new Reddit(WebAgent.RateLimitMode.Pace, true);
+
             if (String.IsNullOrEmpty(userName) || String.IsNullOrEmpty(password)) return;
 
-            _redditUser = _reddit.LogIn(userName, password);
+            _redditUser = _reddit.LogIn(userName, password, true);
 
             if (_redditUser == null) return;
+            LoginButton.IsEnabled = false;
 
-            var posts = _redditUser.Posts.ToList();
-            var comments = _redditUser.Comments.ToList();
-
-            var postCount = posts.Count;
-            var commentCount = comments;
+            var posts = _redditUser.Posts.ToList<Post>();
+            var comments = _redditUser.Comments.ToList<Comment>();
 
             OutputTextBlock.Text =
-                String.Format("Logged in as {0}. You have {1} posts and {2} comments waiting to be shredded.", _redditUser.Name, postCount, commentCount);
-            ShredButton.IsEnabled = true;
+                string.Format("Logged in as {0}. You have {1} posts and {2} comments waiting to be shredded.", _redditUser.Name, posts.Count, comments.Count);
+            ShredButton.IsEnabled = true;            
         }
     }
 

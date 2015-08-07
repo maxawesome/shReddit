@@ -24,8 +24,8 @@
                         <TextBox Name="UserNameText" IsTabStop="True" TabIndex="0" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5,5,5,5" MinWidth="200" MaxWidth="350"></TextBox>
                         <PasswordBox Name="PasswordText" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5,5,5,5" MinWidth="200" MaxWidth="350"></PasswordBox>
                         <ComboBox Name="WriteGarbage" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5,2,2,2" MinWidth="50" MaxWidth="100">
-                            <ComboBoxItem IsSelected="True">Yes</ComboBoxItem>
-                            <ComboBoxItem>No</ComboBoxItem>
+                            <ComboBoxItem IsSelected="True">No</ComboBoxItem>
+                            <ComboBoxItem>Yes</ComboBoxItem>
                         </ComboBox>
                         <ComboBox Name="PassNumber" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5,2,2,2" MinWidth="50" MaxWidth="100">
                             <ComboBoxItem IsSelected="True">1</ComboBoxItem>
@@ -34,12 +34,12 @@
                             <ComboBoxItem>10</ComboBoxItem>
                         </ComboBox>
                         <ComboBox Name="DeletePosts" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5,2,2,2" MinWidth="50" MaxWidth="100">
-                            <ComboBoxItem IsSelected="True">Yes</ComboBoxItem>
-                            <ComboBoxItem>No</ComboBoxItem>
+                            <ComboBoxItem IsSelected="True">No</ComboBoxItem>
+                            <ComboBoxItem>Yes</ComboBoxItem>
                         </ComboBox>
                         <ComboBox Name="DeleteComments" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5,1,1,1" MinWidth="50" MaxWidth="100">
-                            <ComboBoxItem IsSelected="True">Yes</ComboBoxItem>
-                            <ComboBoxItem>No</ComboBoxItem>
+                            <ComboBoxItem IsSelected="True">No</ComboBoxItem>
+                            <ComboBoxItem>Yes</ComboBoxItem>
                         </ComboBox>
                         <DockPanel>
                             <Button Name="ShredButton" DockPanel.Dock="Right" VerticalAlignment="Center" HorizontalAlignment="Right" Padding="5,2,5,2" Margin="2,2,2,2" Click="ShredButton_Click" IsEnabled="False">Shred</Button>
