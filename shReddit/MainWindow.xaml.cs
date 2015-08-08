@@ -45,7 +45,7 @@ namespace shReddit
             var deletePostsQty = int.Parse(DeletePostsQuantity.Text);
             var deleteCommentsQty = int.Parse(DeleteCommentsQuantity.Text);
 
-            OutputTextBlock.Text = ShredEngine.Shred(_redditUser, writeGarbage, numberOfPasses, deletePostsQty, deleteCommentsQty) ? "Shredding completed successfully!" : "Shredding failed.";
+            OutputTextBlock.Text = ShredEngine.Shred(_redditUser, writeGarbage, numberOfPasses, deletePostsQty, deleteCommentsQty) ? "Shredding failed." : "Shredding completed successfully!";
 
             ToggleShredImage(false);
 
@@ -72,8 +72,12 @@ namespace shReddit
             if (_redditUser == null) return;
             LoginButton.IsEnabled = false;
 
-            var posts = _redditUser.Posts.Take(100).ToList();
-            var comments = _redditUser.Comments.Take(100).ToList();
+
+            var deletePostsQty = int.Parse(DeletePostsQuantity.Text);
+            var deleteCommentsQty = int.Parse(DeleteCommentsQuantity.Text);
+
+            var posts = _redditUser.Posts.Take(deletePostsQty).ToList();
+            var comments = _redditUser.Comments.Take(deleteCommentsQty).ToList();
 
             OutputTextBlock.Text =
                 $"Logged in as {_redditUser.Name}. You have >= {posts.Count} posts and >= {comments.Count} comments waiting to be shredded.";

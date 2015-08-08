@@ -80,7 +80,7 @@ namespace shReddit
                 if (deleteCommentsQty == 0) continue;
                 try
                 {
-                    comment.Del(); //This won't work until RedditSharp implements the Del method, which it doesn't yet.
+                    comment.Del();
                     shreddedComments.Add(comment);
                 }
                 catch (Exception ex)
