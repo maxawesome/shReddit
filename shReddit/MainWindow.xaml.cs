@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Linq;
+using System.Threading;
 using System.Windows;
 using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 using RedditSharp;
 using RedditSharp.Things;
 
@@ -10,15 +12,30 @@ namespace shReddit
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow
     {
         private Reddit _reddit;
-        private AuthenticatedUser _redditUser;
+        private static AuthenticatedUser _redditUser;
 
         public MainWindow()
         {
             InitializeComponent();
         }
+
+        private void ShredThreadProc(object stateInfo)
+        {
+            var sc = (ShredCommand)stateInfo;
+            var engine = new ShredEngine();
+            var result = engine.Shred(_redditUser, sc);
+            Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action<bool>(UpdateUIThreadWithShredResult), result);
+        }
+
+        private void UpdateUIThreadWithShredResult(bool result)
+        {
+            OutputTextBlock.Text += result ? $"\r\n{DateTime.Now} | Shredding failed." : $"\r\n{DateTime.Now} | Shredding completed successfully!";
+            ToggleShredImage(false);
+            ShredButton.IsEnabled = true;
+        }        
 
         private void ShredButton_Click(object sender, RoutedEventArgs e)
         {
@@ -38,6 +55,7 @@ namespace shReddit
             if (sure != MessageBoxResult.Yes) return;
 
             ToggleShredImage(true);
+            ShredButton.IsEnabled = false;
 
             var writeGarbage = WriteGarbage.Text == "Yes";
             int numberOfPasses;
@@ -45,10 +63,12 @@ namespace shReddit
             var deletePostsQty = int.Parse(DeletePostsQuantity.Text);
             var deleteCommentsQty = int.Parse(DeleteCommentsQuantity.Text);
 
-            OutputTextBlock.Text = ShredEngine.Shred(_redditUser, writeGarbage, numberOfPasses, deletePostsQty, deleteCommentsQty) ? "Shredding failed." : "Shredding completed successfully!";
+            var sc = new ShredCommand(writeGarbage, numberOfPasses, deletePostsQty, deleteCommentsQty);
 
-            ToggleShredImage(false);
+            ThreadPool.QueueUserWorkItem(ShredThreadProc, sc);
+            OutputTextBlock.Text += $"\r\n{DateTime.Now} | Shredding in progress.";
 
+            Thread.Sleep(1000);
         }
 
         private void ToggleShredImage(bool shredding)
@@ -58,16 +78,25 @@ namespace shReddit
 
         private void LoginButton_Click(object sender, RoutedEventArgs e)
         {
+            OutputTextBlock.Text += $"\r\n{DateTime.Now} | Attempting to login as {UserNameText.Text}.";
             ProcessLogin(UserNameText.Text, PasswordText.Password);
         }
 
-        private void ProcessLogin(string userName, string password)
+        private void ProcessLogin(string username, string password)
         {
             _reddit = new Reddit(WebAgent.RateLimitMode.Pace);
 
-            if (string.IsNullOrEmpty(userName) || string.IsNullOrEmpty(password)) return;
+            if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password)) return;
 
-            _redditUser = _reddit.LogIn(userName, password);
+            try
+            {
+                _redditUser = _reddit.LogIn(username, password);
+                OutputTextBlock.Text += $"\r\n{DateTime.Now} | Logged in as {username}.";
+            }
+            catch (Exception ex)
+            {
+                OutputTextBlock.Text += $"\r\n{DateTime.Now} | Login failed. Exception encountered: {ex.Message}.";
+            }
 
             if (_redditUser == null) return;
             LoginButton.IsEnabled = false;
@@ -76,12 +105,14 @@ namespace shReddit
             var deletePostsQty = int.Parse(DeletePostsQuantity.Text);
             var deleteCommentsQty = int.Parse(DeleteCommentsQuantity.Text);
 
+            OutputTextBlock.Text += $"\r\n{DateTime.Now} | Calculating Post and Comment counts.";
             var posts = _redditUser.Posts.Take(deletePostsQty).ToList();
             var comments = _redditUser.Comments.Take(deleteCommentsQty).ToList();
 
-            OutputTextBlock.Text =
-                $"Logged in as {_redditUser.Name}. You have >= {posts.Count} posts and >= {comments.Count} comments waiting to be shredded.";
-            ShredButton.IsEnabled = true;            
+            OutputTextBlock.Text +=
+                $"\r\n{DateTime.Now} | More than {posts.Count} Posts and more than {comments.Count} Comments waiting to be shredded.";
+            ShredButton.IsEnabled = true;
+
         }
     }
 

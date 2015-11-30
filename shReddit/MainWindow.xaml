@@ -56,7 +56,9 @@
                     </StackPanel>
                 </DockPanel>
                 <StackPanel DockPanel.Dock="Bottom">
-                    <TextBlock Name="OutputTextBlock" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="10,10,10,10">Once you start shredding, you'll see the results here.</TextBlock>
+                    <ScrollViewer CanContentScroll="True" Height="125" >
+                        <TextBlock x:Name="OutputTextBlock" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="10,10,10,10" TextAlignment="Left" TextWrapping="Wrap"><Run Text="Once you start shredding, you'll see the results here."/></TextBlock>
+                    </ScrollViewer>
                 </StackPanel>
             </StackPanel>
         </DockPanel>

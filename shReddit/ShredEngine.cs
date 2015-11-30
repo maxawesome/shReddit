@@ -5,31 +5,34 @@ using RedditSharp.Things;
 
 namespace shReddit
 {
-    public static class ShredEngine
+    public class ShredEngine
     {
-        private static string GenerateRandomString()
+        public int ShreddedPosts;
+        public int ShreddedComments;
+
+        private string GenerateRandomString()
         {
             const int length = 32;
-            var randomText = Guid.NewGuid().ToString("N").Substring(0, length);
+            var randomText = Guid.NewGuid().ToString("N").Substring(0, length); //Guids are cool!
             return randomText;
         }
 
 
-        public static bool Shred(AuthenticatedUser redditUser, bool writeGarbage, int numberOfPasses, int deletePostsQty, int deleteCommentsQty)
+        public bool Shred(AuthenticatedUser redditUser, ShredCommand sc)
         {
             var encounteredErrors = false;
 
-            var postsToShred = redditUser.Posts.Take(deletePostsQty).ToList();
-            var commentsToShred = redditUser.Comments.Take(deleteCommentsQty).ToList();
+            var postsToShred = redditUser.Posts.Take(sc.DeletePostsQty).ToList();
+            var commentsToShred = redditUser.Comments.Take(sc.DeleteCommentsQty).ToList();
 
             var shreddedPosts = new List<Post>();
             var shreddedComments = new List<Comment>();
 
             foreach (var post in postsToShred)
             {
-                if (writeGarbage)
+                if (sc.WriteGarbage)
                 {
-                    for (var i = 0; i < numberOfPasses; i++)
+                    for (var i = 0; i < sc.NumberOfPasses; i++)
                     {
                         if (!post.IsSelfPost) continue;
                         try
@@ -44,7 +47,7 @@ namespace shReddit
                     }
                 }
 
-                if (deletePostsQty == 0) continue;
+                if (sc.DeletePostsQty == 0) continue;
                 try
                 {
                     post.Del();
@@ -61,9 +64,9 @@ namespace shReddit
 
             foreach (var comment in commentsToShred)
             {
-                if (writeGarbage)
+                if (sc.WriteGarbage)
                 {
-                    for (var i = 0; i < numberOfPasses; i++)
+                    for (var i = 0; i < sc.NumberOfPasses; i++)
                     {
                         try
                         {
@@ -77,7 +80,7 @@ namespace shReddit
                     }
                 }
 
-                if (deleteCommentsQty == 0) continue;
+                if (sc.DeleteCommentsQty == 0) continue;
                 try
                 {
                     comment.Del();
@@ -90,8 +93,8 @@ namespace shReddit
                 }
             }
 
-            var postShredCount = shreddedPosts.Count;
-            var commentShredCount = shreddedComments.Count;
+            ShreddedPosts = shreddedPosts.Count;
+            ShreddedComments = shreddedComments.Count;
 
             return encounteredErrors;
         }
