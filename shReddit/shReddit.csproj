@@ -47,9 +47,9 @@
       <HintPath>packages\Newtonsoft.Json.7.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="RedditSharp, Version=1.0.18.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\RedditSharp\RedditSharp\bin\Release\RedditSharp.dll</HintPath>
+    <Reference Include="RedditSharp, Version=1.0.20.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\RedditSharp.1.0.20\lib\RedditSharp.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
