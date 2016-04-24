@@ -9,6 +9,7 @@ namespace shReddit
     {
         public int ShreddedPosts;
         public int ShreddedComments;
+        public int ErrorCount;
 
         private string GenerateRandomString()
         {
@@ -20,13 +21,11 @@ namespace shReddit
 
         public bool Shred(AuthenticatedUser redditUser, ShredCommand sc)
         {
-            var encounteredErrors = false;
-
             var postsToShred = redditUser.Posts.Take(sc.DeletePostsQty).ToList();
             var commentsToShred = redditUser.Comments.Take(sc.DeleteCommentsQty).ToList();
 
-            var shreddedPosts = new List<Post>();
-            var shreddedComments = new List<Comment>();
+            ShreddedPosts = 0;
+            ShreddedComments = 0;
 
             foreach (var post in postsToShred)
             {
@@ -42,7 +41,7 @@ namespace shReddit
                         catch (Exception ex)
                         {
                             var msg = ex.Message;
-                            encounteredErrors = true;
+                            ErrorCount++;
                         }
                     }
                 }
@@ -51,12 +50,12 @@ namespace shReddit
                 try
                 {
                     post.Del();
-                    shreddedPosts.Add(post);
+                    ShreddedPosts++;
                 }
                 catch (Exception ex)
                 {
                     var msg = ex.Message;
-                    encounteredErrors = true;
+                    ErrorCount++;
                 }
             }
 
@@ -75,7 +74,7 @@ namespace shReddit
                         catch (Exception ex)
                         {
                             var msg = ex.Message;
-                            encounteredErrors = true;
+                            ErrorCount++;
                         }
                     }
                 }
@@ -84,19 +83,16 @@ namespace shReddit
                 try
                 {
                     comment.Del();
-                    shreddedComments.Add(comment);
+                    ShreddedComments++;
                 }
                 catch (Exception ex)
                 {
                     var msg = ex.Message;
-                    encounteredErrors = true;
+                    ErrorCount++;
                 }
             }
 
-            ShreddedPosts = shreddedPosts.Count;
-            ShreddedComments = shreddedComments.Count;
-
-            return encounteredErrors;
+            return true;
         }
     }
 }

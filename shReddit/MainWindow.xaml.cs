@@ -16,6 +16,9 @@ namespace shReddit
     {
         private Reddit _reddit;
         private static AuthenticatedUser _redditUser;
+        private ShredEngine _shredEngine;
+        private bool _shredResult;
+        private static System.Timers.Timer _intervalTimer;
 
         public MainWindow()
         {
@@ -24,10 +27,27 @@ namespace shReddit
 
         private void ShredThreadProc(object stateInfo)
         {
+            _intervalTimer = new System.Timers.Timer(10000);
+            _intervalTimer.Elapsed += new System.Timers.ElapsedEventHandler(timer_Elapsed);
+            _intervalTimer.Start();
+
             var sc = (ShredCommand)stateInfo;
-            var engine = new ShredEngine();
-            var result = engine.Shred(_redditUser, sc);
-            Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action<bool>(UpdateUIThreadWithShredResult), result);
+            _shredEngine = new ShredEngine();
+            _shredResult = _shredEngine.Shred(_redditUser, sc);
+
+            Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action<bool>(UpdateUIThreadWithShredResult), _shredResult);
+            _intervalTimer.Stop();
+        }
+
+        private void timer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action<int, int>(UpdateUIThreadWithProgress), _shredEngine.ShreddedComments, _shredEngine.ShreddedPosts);
+            if (_shredResult) _intervalTimer.Stop();
+        }
+
+        private void UpdateUIThreadWithProgress(int commentQty, int postQty)
+        {
+            OutputTextBlock.Text += $"\r\n{DateTime.Now} | {commentQty} Comments and {postQty} Posts shredded so far.";
         }
 
         private void UpdateUIThreadWithShredResult(bool result)
@@ -35,7 +55,7 @@ namespace shReddit
             OutputTextBlock.Text += result ? $"\r\n{DateTime.Now} | Shredding failed." : $"\r\n{DateTime.Now} | Shredding completed successfully!";
             ToggleShredImage(false);
             ShredButton.IsEnabled = true;
-        }        
+        }
 
         private void ShredButton_Click(object sender, RoutedEventArgs e)
         {
@@ -101,16 +121,13 @@ namespace shReddit
             if (_redditUser == null) return;
             LoginButton.IsEnabled = false;
 
-
-            var deletePostsQty = int.Parse(DeletePostsQuantity.Text);
-            var deleteCommentsQty = int.Parse(DeleteCommentsQuantity.Text);
-
-            OutputTextBlock.Text += $"\r\n{DateTime.Now} | Calculating Post and Comment counts.";
-            var posts = _redditUser.Posts.Take(deletePostsQty).ToList();
-            var comments = _redditUser.Comments.Take(deleteCommentsQty).ToList();
+            OutputTextBlock.Text += $"\r\n{DateTime.Now} | Calculating Post, Comment, and PM counts.";
+            var posts = _redditUser.Posts.Take(1000).ToList();
+            var comments = _redditUser.Comments.Take(1000).ToList();
+            var pms = _redditUser.PrivateMessages.Take(1000).ToList();
 
             OutputTextBlock.Text +=
-                $"\r\n{DateTime.Now} | More than {posts.Count} Posts and more than {comments.Count} Comments waiting to be shredded.";
+                $"\r\n{DateTime.Now} | Found {posts.Count} Posts, {comments.Count} Comments, and {pms.Count} PMs waiting to be shredded.";
             ShredButton.IsEnabled = true;
 
         }
