@@ -16,16 +16,16 @@
                 </DockPanel>
                 <DockPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                     <StackPanel DockPanel.Dock="Left">
-                        <Label x:Name="UserNameLabel" VerticalAlignment="Center" HorizontalAlignment="Right" Content="Username:"/>
-                        <Label x:Name="PasswordLabel" VerticalAlignment="Center" HorizontalAlignment="Right" Content="Password:"/>
+                        <Label x:Name="UserNameLabel" VerticalAlignment="Center" HorizontalAlignment="Right" Content="Username:" Width="65"/>
+                        <Label x:Name="PasswordLabel" VerticalAlignment="Center" HorizontalAlignment="Right" Content="Password:" Width="65"/>
                     </StackPanel>
                     <StackPanel DockPanel.Dock="Left">
-                        <TextBox x:Name="UserNameText" IsTabStop="True" TabIndex="0" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5,5,5,5" MinWidth="200" MaxWidth="350" Background="White"/>
-                        <PasswordBox x:Name="PasswordText" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5,5,5,5" MinWidth="200" MaxWidth="350"/>
+                        <TextBox x:Name="UserNameText" IsTabStop="True" TabIndex="0" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5,5,5,5" Width="200" Background="White"/>
+                        <PasswordBox x:Name="PasswordText" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5,5,5,5" Width="200"/>
                         <Button x:Name="LoginButton" DockPanel.Dock="Bottom" VerticalAlignment="Center" HorizontalAlignment="Center" Padding="5,2,5,2" Margin="2,2,2,2" Click="LoginButton_Click" Content="Login" Width="200" Background="#FF29C407"/>
                     </StackPanel>
                 </DockPanel>
-                <DockPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <DockPanel Name="OptionsDock" VerticalAlignment="Center" HorizontalAlignment="Center" Visibility="Collapsed">
                     <StackPanel DockPanel.Dock="Left" HorizontalAlignment="Left" Width="167">
                         <Label x:Name="WriteGarbageLabel" VerticalAlignment="Center" HorizontalAlignment="Right" Content="Write Garbage?"/>
                         <Label x:Name="PassNumberLabel" VerticalAlignment="Center" HorizontalAlignment="Right" Content="Number of Passes:"/>
@@ -61,12 +61,12 @@
                         </ComboBox>
                     </StackPanel>
                 </DockPanel>
-                <DockPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                    <StackPanel DockPanel.Dock="Left" HorizontalAlignment="Left" Width="270">
-                        <Button x:Name="ShredButton" DockPanel.Dock="Bottom" VerticalAlignment="Center" HorizontalAlignment="Right" Padding="5,2,5,2" Margin="0,2" Click="ShredButton_Click" IsEnabled="False" Content="Shred" Width="200" Background="#FFA40E0E"/>
+                <DockPanel Name="ShredDock" VerticalAlignment="Center" HorizontalAlignment="Center" Visibility="Collapsed">
+                    <StackPanel DockPanel.Dock="Left" HorizontalAlignment="Right" Width="265">
+                        <Button x:Name="ShredButton" DockPanel.Dock="Bottom" VerticalAlignment="Center" HorizontalAlignment="Right" Padding="5,2,5,2" MinWidth="200" MaxWidth="350" Margin="0,2" Click="ShredButton_Click" IsEnabled="False" Content="Shred" Width="200" Background="#FFA40E0E"/>
                     </StackPanel>
                 </DockPanel>
-                <StackPanel DockPanel.Dock="Bottom">
+                <StackPanel Name="OutputDock" DockPanel.Dock="Bottom" Visibility="Collapsed">
                     <ScrollViewer CanContentScroll="True" VerticalAlignment="Bottom" Margin="5,5,5,5" Height="95" Width="379" BorderThickness="1" Background="{DynamicResource {x:Static SystemColors.InactiveCaptionBrushKey}}" >
                         <TextBlock x:Name="OutputTextBlock" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="10,10,10,10" TextAlignment="Left" TextWrapping="Wrap"><Run Text="Once you start shredding, you'll see the results here."/></TextBlock>
                     </ScrollViewer>

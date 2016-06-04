@@ -52,7 +52,7 @@ namespace shReddit
 
         private void UpdateUIThreadWithShredResult(bool result)
         {
-            OutputTextBlock.Text += result ? $"\r\n{DateTime.Now} | Shredding failed." : $"\r\n{DateTime.Now} | Shredding completed successfully!";
+            OutputTextBlock.Text += result ? $"\r\n{DateTime.Now} | Shredding completed successfully!" : $"\r\n{DateTime.Now} | Shredding failed.";
             ToggleShredImage(false);
             ShredButton.IsEnabled = true;
         }
@@ -99,37 +99,55 @@ namespace shReddit
         private void LoginButton_Click(object sender, RoutedEventArgs e)
         {
             OutputTextBlock.Text += $"\r\n{DateTime.Now} | Attempting to login as {UserNameText.Text}.";
-            ProcessLogin(UserNameText.Text, PasswordText.Password);
+            OutputDock.Visibility = Visibility.Visible;                    
+
+            if (ProcessLogin(UserNameText.Text, PasswordText.Password))
+            {
+                OutputTextBlock.Text += $"\r\n{DateTime.Now} | Unable to log you in at this time. Check your login info and try again.";
+                CalculateItemCounts();
+                LoginButton.IsEnabled = false;
+            }
+            
         }
 
-        private void ProcessLogin(string username, string password)
+        private bool ProcessLogin(string username, string password)
         {
             _reddit = new Reddit(WebAgent.RateLimitMode.Pace);
 
-            if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password)) return;
+            if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password)) return false;
 
             try
             {
-                _redditUser = _reddit.LogIn(username, password);
-                OutputTextBlock.Text += $"\r\n{DateTime.Now} | Logged in as {username}.";
+                OutputTextBlock.Text += $"\r\n{DateTime.Now} | Logging in as {username}.";
+                _redditUser = _reddit.LogIn(username, password);                
             }
             catch (Exception ex)
             {
-                OutputTextBlock.Text += $"\r\n{DateTime.Now} | Login failed. Exception encountered: {ex.Message}.";
+                OutputTextBlock.Text += $"\r\n{DateTime.Now} | Login failed. Exception encountered: {ex.Message}. Is Reddit down?";
             }
 
-            if (_redditUser == null) return;
-            LoginButton.IsEnabled = false;
+            if (_redditUser != null) return true;
+            return false;                                  
+        }
 
-            OutputTextBlock.Text += $"\r\n{DateTime.Now} | Calculating Post, Comment, and PM counts.";
+        private void CalculateItemCounts()
+        {
+            OutputTextBlock.Text += $"\r\n{DateTime.Now} | Calculating post and comment counts.";
             var posts = _redditUser.Posts.Take(1000).ToList();
-            var comments = _redditUser.Comments.Take(1000).ToList();
-            var pms = _redditUser.PrivateMessages.Take(1000).ToList();
+            var comments = _redditUser.Comments.Take(1000).ToList();            
 
-            OutputTextBlock.Text +=
-                $"\r\n{DateTime.Now} | Found {posts.Count} Posts, {comments.Count} Comments, and {pms.Count} PMs waiting to be shredded.";
-            ShredButton.IsEnabled = true;
-
+            if (posts.Count > 0 | comments.Count > 0)
+            {
+                ShredButton.IsEnabled = true;
+                OutputTextBlock.Text += $"\r\n{DateTime.Now} | Found {posts.Count} post(s) and {comments.Count} comment(s) waiting to be shredded.";
+                OptionsDock.Visibility = Visibility.Visible;
+                ShredDock.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                OutputTextBlock.Text += $"\r\n{DateTime.Now} | Couldn't find any posts or comments to shred. If you know you have some, wait a few minutes and try again.";
+            }
+            
         }
     }
 
