@@ -17,3 +17,4 @@ C:\Users\jabaum\Source\Repos\shReddit\shReddit\obj\Debug\shReddit.Properties.Res
 C:\Users\jabaum\Source\Repos\shReddit\shReddit\obj\Debug\shReddit.csproj.GenerateResource.Cache
 C:\Users\jabaum\Source\Repos\shReddit\shReddit\obj\Debug\shReddit.exe
 C:\Users\jabaum\Source\Repos\shReddit\shReddit\obj\Debug\shReddit.pdb
+C:\Users\jabaum\Source\Repos\shReddit\shReddit\obj\Debug\shReddit.csproj.CoreCompileInputs.cache

@@ -19,6 +19,10 @@ namespace shReddit
         private ShredEngine _shredEngine;
         private bool _shredResult;
         private static System.Timers.Timer _intervalTimer;
+        private Logger _logger;
+
+        private int _shreddedComments;
+        private int _shreddedPosts;
 
         public MainWindow()
         {
@@ -27,7 +31,7 @@ namespace shReddit
 
         private void ShredThreadProc(object stateInfo)
         {
-            _intervalTimer = new System.Timers.Timer(10000);
+            _intervalTimer = new System.Timers.Timer(1000);
             _intervalTimer.Elapsed += new System.Timers.ElapsedEventHandler(timer_Elapsed);
             _intervalTimer.Start();
 
@@ -41,24 +45,35 @@ namespace shReddit
 
         private void timer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
-            Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action<int, int>(UpdateUIThreadWithProgress), _shredEngine.ShreddedComments, _shredEngine.ShreddedPosts);
+            //Only update the UI when new posts/comments have been shredded.
+            if(_shredEngine.ShreddedComments > _shreddedComments || _shredEngine.ShreddedPosts > _shreddedPosts)
+            {
+                _shreddedComments = _shredEngine.ShreddedComments;
+                _shreddedPosts = _shredEngine.ShreddedPosts;
+                Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action<int, int>(UpdateUIThreadWithProgress), _shredEngine.ShreddedComments, _shredEngine.ShreddedPosts);
+            }            
             if (_shredResult) _intervalTimer.Stop();
         }
 
         private void UpdateUIThreadWithProgress(int commentQty, int postQty)
         {
-            OutputTextBlock.Text += $"\r\n{DateTime.Now} | {commentQty} Comments and {postQty} Posts shredded so far.";
+            _logger = new Logger();
+            OutputTextBlock.Text = _logger.LogEntry(OutputTextBlock.Text, $"{commentQty} Comments and {postQty} Posts shredded so far.", false);            
         }
 
         private void UpdateUIThreadWithShredResult(bool result)
         {
-            OutputTextBlock.Text += result ? $"\r\n{DateTime.Now} | Shredding completed successfully!" : $"\r\n{DateTime.Now} | Shredding failed.";
+            _logger = new Logger();
+            OutputTextBlock.Text = result ? _logger.LogEntry(OutputTextBlock.Text, "Shredding completed successfully!", false) : _logger.LogEntry(OutputTextBlock.Text, "Shredding failed.", false);
             ToggleShredImage(false);
             ShredButton.IsEnabled = true;
         }
 
         private void ShredButton_Click(object sender, RoutedEventArgs e)
         {
+            _shreddedComments = 0;
+            _shreddedPosts = 0;
+            _logger = new Logger();          
             if (_redditUser == null)
             {
                 MessageBox.Show("You're not logged in. Try again.", "Not logged in!", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -86,7 +101,7 @@ namespace shReddit
             var sc = new ShredCommand(writeGarbage, numberOfPasses, deletePostsQty, deleteCommentsQty);
 
             ThreadPool.QueueUserWorkItem(ShredThreadProc, sc);
-            OutputTextBlock.Text += $"\r\n{DateTime.Now} | Shredding in progress.";
+            OutputTextBlock.Text = _logger.LogEntry(OutputTextBlock.Text, "Shredding in progress.", false);
 
             Thread.Sleep(1000);
         }
@@ -98,56 +113,63 @@ namespace shReddit
 
         private void LoginButton_Click(object sender, RoutedEventArgs e)
         {
-            OutputTextBlock.Text += $"\r\n{DateTime.Now} | Attempting to login as {UserNameText.Text}.";
-            OutputDock.Visibility = Visibility.Visible;                    
+            _logger = new Logger();
+            OutputDock.Visibility = Visibility.Visible;
+            OutputTextBlock.Text = _logger.LogEntry(OutputTextBlock.Text, $"Attempting to log in as {UserNameText.Text}.", false);                        
 
             if (ProcessLogin(UserNameText.Text, PasswordText.Password))
             {
-                OutputTextBlock.Text += $"\r\n{DateTime.Now} | Unable to log you in at this time. Check your login info and try again.";
+                OutputTextBlock.Text = _logger.LogEntry(OutputTextBlock.Text, "Login successful. Looking for your posts and comments.", false);
                 CalculateItemCounts();
                 LoginButton.IsEnabled = false;
             }
-            
+            else
+            {
+                OutputTextBlock.Text = _logger.LogEntry(OutputTextBlock.Text, "Unable to log in at this time. Check your login info and try again.", false);
+            }
+
         }
 
         private bool ProcessLogin(string username, string password)
         {
+            _logger = new Logger();
             _reddit = new Reddit(WebAgent.RateLimitMode.Pace);
 
             if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password)) return false;
 
             try
             {
-                OutputTextBlock.Text += $"\r\n{DateTime.Now} | Logging in as {username}.";
-                _redditUser = _reddit.LogIn(username, password);                
+                OutputTextBlock.Text = _logger.LogEntry(OutputTextBlock.Text, $"Logging in as {username}", false);
+                _redditUser = _reddit.LogIn(username, password);
             }
             catch (Exception ex)
             {
-                OutputTextBlock.Text += $"\r\n{DateTime.Now} | Login failed. Exception encountered: {ex.Message}. Is Reddit down?";
+                OutputTextBlock.Text = _logger.LogEntry(OutputTextBlock.Text, $"Login failed. Exception encountered: {ex.Message}. Is Reddit down?", false);
             }
 
             if (_redditUser != null) return true;
-            return false;                                  
+            return false;
         }
 
         private void CalculateItemCounts()
         {
-            OutputTextBlock.Text += $"\r\n{DateTime.Now} | Calculating post and comment counts.";
+            _logger = new Logger();
+            OutputTextBlock.Text = _logger.LogEntry(OutputTextBlock.Text, "Calculating post and comment counts.", false);
+            
             var posts = _redditUser.Posts.Take(1000).ToList();
-            var comments = _redditUser.Comments.Take(1000).ToList();            
+            var comments = _redditUser.Comments.Take(1000).ToList();
 
             if (posts.Count > 0 | comments.Count > 0)
             {
                 ShredButton.IsEnabled = true;
-                OutputTextBlock.Text += $"\r\n{DateTime.Now} | Found {posts.Count} post(s) and {comments.Count} comment(s) waiting to be shredded.";
+                OutputTextBlock.Text = _logger.LogEntry(OutputTextBlock.Text, $"Found at least {posts.Count} post(s) and {comments.Count} comment(s) waiting to be shredded.", false);
                 OptionsDock.Visibility = Visibility.Visible;
                 ShredDock.Visibility = Visibility.Visible;
             }
             else
             {
-                OutputTextBlock.Text += $"\r\n{DateTime.Now} | Couldn't find any posts or comments to shred. If you know you have some, wait a few minutes and try again.";
+                OutputTextBlock.Text = _logger.LogEntry(OutputTextBlock.Text, "Couldn't find any posts or comments to shred. If you know you have some, wait a few minutes and try again.", false);
             }
-            
         }
     }
 
