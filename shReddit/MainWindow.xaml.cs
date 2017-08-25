@@ -31,6 +31,7 @@ namespace shReddit
 
         private void ShredThreadProc(object stateInfo)
         {
+            _logger = new Logger();
             _intervalTimer = new System.Timers.Timer(1000);
             _intervalTimer.Elapsed += new System.Timers.ElapsedEventHandler(timer_Elapsed);
             _intervalTimer.Start();
@@ -40,7 +41,7 @@ namespace shReddit
             _shredResult = _shredEngine.Shred(_redditUser, sc);
 
             Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action<bool>(UpdateUIThreadWithShredResult), _shredResult);
-            _intervalTimer.Stop();
+            _intervalTimer.Stop();            
         }
 
         private void timer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
@@ -64,7 +65,7 @@ namespace shReddit
         private void UpdateUIThreadWithShredResult(bool result)
         {
             _logger = new Logger();
-            OutputTextBlock.Text = result ? _logger.LogEntry(OutputTextBlock.Text, "Shredding completed successfully!", false) : _logger.LogEntry(OutputTextBlock.Text, "Shredding failed.", false);
+            OutputTextBlock.Text = result ? _logger.LogEntry(OutputTextBlock.Text, "Shredding complete.", false) : _logger.LogEntry(OutputTextBlock.Text, "Shredding failed.", false);
             ToggleShredImage(false);
             ShredButton.IsEnabled = true;
         }
