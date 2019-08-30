@@ -45,19 +45,9 @@
                         </ComboBox>
                         <ComboBox x:Name="DeletePostsQuantity" ToolTip="Specifies the number of posts to shred. Max is 1000 due to Reddit API limits." VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5,1,0,3" MinWidth="50" MaxWidth="100" Width="103">
                             <ComboBoxItem IsSelected="True" Content="0"/>
-                            <ComboBoxItem Content="10"/>
-                            <ComboBoxItem Content="50"/>
-                            <ComboBoxItem Content="100"/>
-                            <ComboBoxItem Content="500"/>
-                            <ComboBoxItem Content="1000"/>
                         </ComboBox>
                         <ComboBox x:Name="DeleteCommentsQuantity" ToolTip="Specifies the number of comments to shred. Max is 1000 due to Reddit API limits." VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5,1,0,3" MinWidth="50" MaxWidth="100" Width="103">
                             <ComboBoxItem IsSelected="True" Content="0"/>
-                            <ComboBoxItem Content="10"/>
-                            <ComboBoxItem Content="50"/>
-                            <ComboBoxItem Content="100"/>
-                            <ComboBoxItem Content="500"/>
-                            <ComboBoxItem Content="1000"/>
                         </ComboBox>
                     </StackPanel>
                 </DockPanel>

@@ -1,11 +1,12 @@
-﻿using System;
+﻿using RedditSharp;
+using RedditSharp.Things;
+using System;
 using System.Linq;
 using System.Threading;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
-using RedditSharp;
-using RedditSharp.Things;
 
 namespace shReddit
 {
@@ -41,25 +42,25 @@ namespace shReddit
             _shredResult = _shredEngine.Shred(_redditUser, sc);
 
             Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action<bool>(UpdateUIThreadWithShredResult), _shredResult);
-            _intervalTimer.Stop();            
+            _intervalTimer.Stop();
         }
 
         private void timer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
             //Only update the UI when new posts/comments have been shredded.
-            if(_shredEngine.ShreddedComments > _shreddedComments || _shredEngine.ShreddedPosts > _shreddedPosts)
+            if (_shredEngine.ShreddedComments > _shreddedComments || _shredEngine.ShreddedPosts > _shreddedPosts)
             {
                 _shreddedComments = _shredEngine.ShreddedComments;
                 _shreddedPosts = _shredEngine.ShreddedPosts;
                 Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action<int, int>(UpdateUIThreadWithProgress), _shredEngine.ShreddedComments, _shredEngine.ShreddedPosts);
-            }            
+            }
             if (_shredResult) _intervalTimer.Stop();
         }
 
         private void UpdateUIThreadWithProgress(int commentQty, int postQty)
         {
             _logger = new Logger();
-            OutputTextBlock.Text = _logger.LogEntry(OutputTextBlock.Text, $"{commentQty} Comments and {postQty} Posts shredded so far.", false);            
+            OutputTextBlock.Text = _logger.LogEntry(OutputTextBlock.Text, $"{commentQty} Comments and {postQty} Posts shredded so far.", false);
         }
 
         private void UpdateUIThreadWithShredResult(bool result)
@@ -74,7 +75,7 @@ namespace shReddit
         {
             _shreddedComments = 0;
             _shreddedPosts = 0;
-            _logger = new Logger();          
+            _logger = new Logger();
             if (_redditUser == null)
             {
                 MessageBox.Show("You're not logged in. Try again.", "Not logged in!", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -116,7 +117,7 @@ namespace shReddit
         {
             _logger = new Logger();
             OutputDock.Visibility = Visibility.Visible;
-            OutputTextBlock.Text = _logger.LogEntry(OutputTextBlock.Text, $"Attempting to log in as {UserNameText.Text}.", false);                        
+            OutputTextBlock.Text = _logger.LogEntry(OutputTextBlock.Text, $"Attempting to log in as {UserNameText.Text}.", false);
 
             if (ProcessLogin(UserNameText.Text, PasswordText.Password))
             {
@@ -156,14 +157,17 @@ namespace shReddit
         {
             _logger = new Logger();
             OutputTextBlock.Text = _logger.LogEntry(OutputTextBlock.Text, "Calculating post and comment counts.", false);
-            
-            var posts = _redditUser.Posts.Take(1000).ToList();
-            var comments = _redditUser.Comments.Take(1000).ToList();
 
-            if (posts.Count > 0 | comments.Count > 0)
+            var postCount = _redditUser.Posts.Count();
+            var commentCount = _redditUser.Comments.Count();
+
+            if (postCount > 0 | commentCount > 0)
             {
+                PopulateQuantityPickers(postCount, commentCount);
+
+
                 ShredButton.IsEnabled = true;
-                OutputTextBlock.Text = _logger.LogEntry(OutputTextBlock.Text, $"Found at least {posts.Count} post(s) and {comments.Count} comment(s) waiting to be shredded.", false);
+                OutputTextBlock.Text = _logger.LogEntry(OutputTextBlock.Text, $"Found {postCount} post(s) and {commentCount} comment(s) waiting to be shredded.", false);
                 OptionsDock.Visibility = Visibility.Visible;
                 ShredDock.Visibility = Visibility.Visible;
             }
@@ -171,6 +175,33 @@ namespace shReddit
             {
                 OutputTextBlock.Text = _logger.LogEntry(OutputTextBlock.Text, "Couldn't find any posts or comments to shred. If you know you have some, wait a few minutes and try again.", false);
             }
+        }
+
+        private void PopulateQuantityPickers(int postCount, int commentCount)
+        {
+            if (postCount > 50)
+                DeletePostsQuantity.Items.Add(new ComboBoxItem() { IsSelected = false, Content = 50 });
+            if (postCount > 100)
+                DeletePostsQuantity.Items.Add(new ComboBoxItem() { IsSelected = false, Content = 100 });
+            if (postCount > 500)
+                DeletePostsQuantity.Items.Add(new ComboBoxItem() { IsSelected = false, Content = 500 });
+            if (postCount > 1000)
+                DeletePostsQuantity.Items.Add(new ComboBoxItem() { IsSelected = false, Content = 1000 });
+
+            DeletePostsQuantity.Items.Add(new ComboBoxItem() { IsSelected = false, Content = postCount });
+
+
+            if (commentCount > 50)
+                DeleteCommentsQuantity.Items.Add(new ComboBoxItem() { IsSelected = false, Content = 50 });
+            if (commentCount > 100)
+                DeleteCommentsQuantity.Items.Add(new ComboBoxItem() { IsSelected = false, Content = 100 });
+            if (commentCount > 500)
+                DeleteCommentsQuantity.Items.Add(new ComboBoxItem() { IsSelected = false, Content = 500 });
+            if (commentCount > 1000)
+                DeleteCommentsQuantity.Items.Add(new ComboBoxItem() { IsSelected = false, Content = 1000 });
+
+            DeleteCommentsQuantity.Items.Add(new ComboBoxItem() { IsSelected = false, Content = commentCount });
+
         }
     }
 

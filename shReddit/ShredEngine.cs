@@ -12,18 +12,16 @@ namespace shReddit
         public int ErrorCount;
 
         private string GenerateRandomString()
-        {
-            const int length = 32;
-            var randomText = Guid.NewGuid().ToString("N").Substring(0, length); //Guids are cool!
-            return randomText;
+        {                        
+            return Guid.NewGuid().ToString("N").Substring(0, 32);
         }
 
 
         public bool Shred(AuthenticatedUser redditUser, ShredCommand sc)
         {
             var postsToShred = redditUser.Posts.Take(sc.DeletePostsQty).ToList();
-            var commentsToShred = redditUser.Comments.Take(sc.DeleteCommentsQty).ToList();
-
+            var commentsToShred = redditUser.Comments.Take(sc.DeleteCommentsQty).ToList();            
+            
             ShreddedPosts = 0;
             ShreddedComments = 0;
 
